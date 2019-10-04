@@ -1,0 +1,9 @@
+{
+  "oracle_credentials":{
+    "usuario": "ECA_CALIDAD",
+    "contrasena": "ECA_CALIDAD2019",
+    "host": "localhost",
+    "port": "1523",
+    "SID": "orcl"
+  }
+}
