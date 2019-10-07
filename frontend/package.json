@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "d3-fetch": "^1.1.2",
     "gulp": "^3.9.1"
   },
   "devDependencies": {

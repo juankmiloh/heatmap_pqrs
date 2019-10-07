@@ -50,22 +50,31 @@ function visualizar(opcion) {
 
       console.log("URL PQR's -> "+url);
 
-      d3.text(url, function(data) {
-        // console.log(data);
-        var parsedCSV = d3.csv.parseRows(data);
+      // d3.text(url, function(data) {
+      //   console.log(data);
+      //   var parsedCSV = d3.csv.parseRows(data);
 
-        var container = d3.select("body")
-          .append("table")
+      //   var container = d3.select(".table")
+      //     .append("table")
 
-          .selectAll("tr")
-            .data(parsedCSV).enter()
-            .append("tr")
+      //     .selectAll("tr")
+      //       .data(parsedCSV).enter()
+      //       .append("tr")
 
-          .selectAll("td")
-            .data(function(d) { return d; }).enter()
-            .append("td")
-            .text(function(d) { return d; });
+      //     .selectAll("td")
+      //       .data(function(d) { return d; }).enter()
+      //       .append("td")
+      //       .text(function(d) { return d; });
+      // });
+
+      // d3.csv(url).then(function(data) {
+      //   console.log(data[0]);
+      // });
+
+      d3.csv(url, function(data){
+        console.log(data);
       });
+      
 
       // Paste the url into a browser's address bar to download and view the attributes
       // in the CSV file. These attributes include:
