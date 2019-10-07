@@ -1,14 +1,31 @@
-function visualizar() {
+function visualizar(opcion) {
   var ano = $("#inputGroupSelect0").val();
   var mes = $("#inputGroupSelect01").val();
   var servicio = $("#inputGroupSelect02").val();
-  var cod_empresa = $("#inputGroupSelect03").val();
+  var datos_empresa = JSON.parse($("#inputGroupSelect03").val());
+  var cod_causa = $("#inputGroupSelect04").val();
   var empresa = $("#inputGroupSelect03 option:selected").text();
   var meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
 
+  var cod_empresa;
+
+  console.log(opcion);
+
+	if (opcion == "TODOS") { 
+    console.log("entro! a todos!");
+		cod_empresa = 0;
+    // servicio = "TODOS";
+  }else{ // se ejecuta cuando se le envia el parametro por medio del select de empresas
+    console.log("entro al JSON!");
+		$.each(datos_empresa, function (i, item) {
+			cod_empresa = item.cod_empresa;
+			// servicio = item.servicio;
+    });
+    
+	}
   // console.log(ano);
   // console.log(mes);
-  // console.log(servicio);
+  console.log("servicio -> " + servicio);
   // console.log(cod_empresa);
   // console.log(empresa);
 
@@ -29,9 +46,26 @@ function visualizar() {
           // http://localhost:5055/pqr/cod_empresa/24860/glp/2018/1
 
       const url =
-          "http://localhost:5055/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes;
+          "http://localhost:5055/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
 
       console.log("URL PQR's -> "+url);
+
+      d3.text(url, function(data) {
+        // console.log(data);
+        var parsedCSV = d3.csv.parseRows(data);
+
+        var container = d3.select("body")
+          .append("table")
+
+          .selectAll("tr")
+            .data(parsedCSV).enter()
+            .append("tr")
+
+          .selectAll("td")
+            .data(function(d) { return d; }).enter()
+            .append("td")
+            .text(function(d) { return d; });
+      });
 
       // Paste the url into a browser's address bar to download and view the attributes
       // in the CSV file. These attributes include:
@@ -41,7 +75,7 @@ function visualizar() {
       // * time - the time of the event
 
       const template = {
-          title: "<b>Lugar:</b> {centro_poblado}", //colocar servicio (energia)
+          title: "<b>EMPRESA:</b> {empresa} <br><b>Cantidad de PQR's:</b> {numero_pqrs}", //colocar servicio (energia)
           content: "<!DOCTYPE html>"+
           "<html lang='es' dir='ltr'>"+
             "<head>"+
@@ -49,7 +83,7 @@ function visualizar() {
               "<title></title>"+
             "</head>"+
             "<body>"+
-              "<br> <b>Cantidad de PQR's:</b> {numero_pqrs}"+
+              "<br> <b>MUNICIPIO:</b> {centro_poblado}"+
             "</body>"+
           "</html>"
       };

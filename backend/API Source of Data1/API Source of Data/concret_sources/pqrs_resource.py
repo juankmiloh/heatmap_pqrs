@@ -45,15 +45,16 @@ class PqrsRsource(Resource):
 		for pqr in data:
 			pqrs.append(
 				{
-					'centro_poblado' : pqr[0],
-					'numero_pqrs' : pqr[1],
-					'latitude' : pqr[2],
-					'longitude' : pqr[3]
+					'empresa' : pqr[0],
+					'centro_poblado' : pqr[1],
+					'numero_pqrs' : pqr[2],
+					'latitude' : pqr[3],
+					'longitude' : pqr[4]
 				}
 			)
 
 		with open('file_pqrs.csv', 'w') as csvfile:
-		    fieldnames = ['centro_poblado', 'numero_pqrs', 'latitude', 'longitude']
+		    fieldnames = ['empresa', 'centro_poblado', 'numero_pqrs', 'latitude', 'longitude']
 		    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 		    writer.writeheader()
 		    writer.writerows(pqrs)
@@ -88,6 +89,10 @@ class PqrsRsource(Resource):
 
 		print("________CAUSA_______________")
 		print(self.__CAUSA_ARG)
+		print("____________________________")
+
+		print("____________________________")
+		print("SQL:", self.__query)
 		print("____________________________")
 
 		cursor.execute(self.__query, ANIO_ARG = self.__ANIO_ARG, PERIODO_ARG = self.__PERIODO_ARG, SERVICIO_ARG = self.__SERVICIO_ARG, EMPRESA_ARG = self.__EMPRESA_ARG, CAUSA_ARG = self.__CAUSA_ARG)

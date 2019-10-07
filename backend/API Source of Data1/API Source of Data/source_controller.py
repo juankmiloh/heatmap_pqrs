@@ -48,5 +48,6 @@ class SourceController():
 		self.__api.add_resource(CausasRsource,
 			"/causas",
 
+			"/causas/<string:servicio>",
 			"/causas/<int:empresa>/<string:servicio>/<int:anio>/<int:mes>",
 		)

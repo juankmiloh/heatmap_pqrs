@@ -36,7 +36,8 @@ class EmpresasRsource(Resource):
 			empresas.append(
 				{
 					'cod_empresa' : pqr[0],
-					'nombre' : pqr[1]			
+					'nombre' : pqr[1],
+					'servicio' : pqr[2],
 				}
 			)
 

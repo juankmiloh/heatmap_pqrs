@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>SUPERSERVICIOS PQR's</title>
@@ -19,11 +19,13 @@
     <!-- <script src="js/map/esri/4.12/dojo/dojo.js"></script> -->
     <script src="js/map/script_maparcgis_pqr.js"></script>
     <script src="js/map/script_index.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="dropdown-backdrop" onload="javascript:visualizar()">
+<body class="dropdown-backdrop" onload="javascript:visualizar('TODOS')">
+    <table></table>
 
     <div class="fbback" style="z-index: 57;"></div>
 
@@ -121,7 +123,7 @@
                                         <div class="input-group-prepend">
                                             <label class="input-group-text" for="inputGroupSelect02"><b>SERVICIO</b></label>
                                         </div>
-                                        <select class="custom-select" id="inputGroupSelect02" onchange="javascript:loadEmpresas(this.value)">
+                                        <select class="custom-select" id="inputGroupSelect02" onchange="javascript:loadEmpresas(this.value, true)">
                                             <option selected value="TODOS">TODOS</option>
                                             <option value="energia">ENERGÍA</option>
                                             <option value="gas">GAS</option>
