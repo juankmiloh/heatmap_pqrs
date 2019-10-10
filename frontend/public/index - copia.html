@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SUPERSERVICIOS PQR's</title>
+    <link rel="shortcut icon" href="image/favicon.png" type="image/png">
+
+    <!-- <link rel="stylesheet" href="css/map/esri/themes/light/main.css"/> -->
+    <link rel="stylesheet" href="css/map/styles.css"/>
+    <link rel="stylesheet" href="js/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/themes/light/main.css"/>
+
+
+    <script src="js/jquery/dist/jquery.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/map/main.js"></script>
+	<script src="JS/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="https://js.arcgis.com/4.12/"></script>
+    <!-- <script src="js/map/esri/4.12/dojo/dojo.js"></script> -->
+    <script src="js/map/script_maparcgis_pqr.js"></script>
+    <script src="js/map/script_index.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="dropdown-backdrop" onload="javascript:visualizar('TODOS')">
+
+    <div id="app">
+        <!-- <h1>{{ title }}</h1> -->
+        <!-- <h2>{{empresas}}</h2> -->
+        <!-- <ul id="example-1">
+            <li v-for="item in empresas">
+                {{ item.empresa }}
+            </li>
+        </ul> -->
+
+        <div class="fbback" style="z-index: 57;"></div>
+
+        <div class="container" id="fbdrag1">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="fb" style="z-index: 990;">
+                        <span class="close" onclick="javascript:closeLoad()"></span>
+                        <!-- <div class="dheader"><img src="image/logo_sm.jpg" alt="superservicios" class='imgMdRedonda'>&nbsp&nbsp<span style="font-size: 0.9em">SUPERSERVICIOS</span></div> -->
+                        <div class="dcontent">
+                            <div style="text-align:center; padding-top:20px">
+                                <img src="./image/loading_tierra.gif" alt="Loading..." width="80" height="80" style="opacity: 1;">
+                                <br><br>
+                                <label style="color: white; font-size:0.7em;"><b>Cargando PQR's ... Espere</b></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #01426A;">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                <a class="navbar-brand" href="#"><img src="image/logo_sm.jpg" alt="superservicios" class='imgSmRedonda'></a>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li>
+                        <span style="font-size: 16px; color: white;"><b>PETICIONES QUEJAS Y RECLAMOS | SUPERSERVICIOS</b></span>
+                    </li>
+                </ul>
+                <form class="form-inline my-2 my-lg-0">
+                    <button id="butonOpcion" class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" onclick="javascript:watchBackdrop()">
+                        Opciones PQR's&nbsp&nbsp<i class="fa fa-angle-double-down" data-toggle="collapse" data-target="#collapseExample"></i>
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+
+            <div style="padding-top: 0.35em;"></div>
+
+            <div class="collapse" id="collapseExample">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12">
+
+                        <form id="formulario" method="post" action="javascript:visualizar()">
+                            <div class="card" style="padding-top: 1.5%;">
+                                <div class="card-body row" style="text-align:center; margin-right: -8%;">
+                                    <!-- <div class="col-xs-12 col-md-12" style="text-align:center;">
+                                        <h5 class="card-title">¿QUÉ DESEA VISUALIZAR?</h5>
+                                        <hr>
+                                    </div> -->
+
+                                    <div class="col-xs-12 col-md-2">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" for="inputGroupSelect0"><b>AÑO</b></label>
+                                            </div>
+                                            <select class="custom-select" id="inputGroupSelect0" >
+                                                <option value="2016">2016</option>
+                                                <option value="2017">2017</option>
+                                                <option selected value="2018">2018</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-2">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" for="inputGroupSelect01"><b>MES</b></label>
+                                            </div>
+                                            <select class="custom-select" id="inputGroupSelect01" name="valor1">
+                                                <option value="0">TODOS</option>
+                                                <option selected value="1">ENERO</option>
+                                                <option value="2">FEBRERO</option>
+                                                <option value="3">MARZO</option>
+                                                <option value="4">ABRIL</option>
+                                                <option value="5">MAYO</option>
+                                                <option value="6">JUNIO</option>
+                                                <option value="7">JULIO</option>
+                                                <option value="8">AGOSTO</option>
+                                                <option value="9">SEPTIEMBRE</option>
+                                                <option value="10">OCTUBRE</option>
+                                                <option value="11">NOVIEMBRE</option>
+                                                <option value="12">DICIEMBRE</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-2">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" for="inputGroupSelect02"><b>SERVICIO</b></label>
+                                            </div>
+                                            <select class="custom-select" id="inputGroupSelect02" onchange="javascript:loadEmpresas(this.value, true)">
+                                                <option selected value="TODOS">TODOS</option>
+                                                <option value="energia">ENERGÍA</option>
+                                                <option value="gas">GAS</option>
+                                                <option value="glp">GLP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-2">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" for="inputGroupSelect03"><b>EMPRESA</b></label>
+                                            </div>
+
+                                            <select class="custom-select" id="inputGroupSelect03" onchange="javascript:loadCausas(this.value)">
+                                            <option selected value="0">TODAS</option>
+                                        </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-2">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" for="inputGroupSelect04"><b>CAUSAS</b></label>
+                                            </div>
+
+                                            <select class="custom-select" id="inputGroupSelect04">
+                                            <option selected value="0">TODAS</option>
+                                        </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-1">
+                                        <button type="submit" class="btn btn-success" id="btn_guardar" v-on:click="updateJson">
+                                            VISUALIZAR
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding-top: 0.3em;"></div>
+
+        </div>
+
+        <div class="fbback_map" style="z-index: 57;" onclick="javascript:watchBackdrop()"></div>
+
+        <div id="viewDiv" style="border: 0px solid; position:relative;">
+            <div class="infoFloating">
+                <div class="card text-center">
+                    <div class="card-header" style="background-color: #01426A;">
+                        <span style="color: white;">TOP 10 MAYOR NÚMERO DE PQR's | ENERGÍA</span>
+                        <ul class="nav nav-tabs card-header-tabs" style="padding-top: 5%;" id="myTab">
+                            <li class="nav-item">
+                                <a class="nav-link active changeColor" href="#home">Empresas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link changeColor" href="#menu1">P. Usuarios</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link changeColor" href="#menu2">Causas</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div id="home" class="tab-pane active"><br> <!-- Contenedor pestaña empresas -->
+                            <div class="card-body" style="padding-top: 0px;">
+                                <div class="card">
+                                    <div class="card-header" style="font-size: 90%;">
+                                        <b>EMPRESAS</b>
+                                    </div>
+                                    <div class="card-body table-responsive" style="height: 15em;">
+                                        <table class="table table-hover" style="font-size: 70%;">
+                                            <thead>
+                                                <tr>
+                                                    <!-- <th scope="col"><b>COD</b></th> -->
+                                                    <th scope="col"><b>EMPRESA</b></th>
+                                                    <th scope="col"><b>MUNICIPIO</b></th>
+                                                    <th scope="col"><b>PQR's</b></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in json">
+                                                    <!-- <td scope="row" v-if="item.empresa != ''">2249</td> -->
+                                                    <td v-if="item.empresa != ''">{{ item.empresa }}</td>
+                                                    <td v-if="item.empresa != ''">{{ item.centro_poblado }}</td>
+                                                    <td v-if="item.empresa != ''">{{ item.numero_pqrs }}</td>                                                                                            
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="menu1" class="container tab-pane fade"><br>                        
+                            <div class="card-body">
+                                <div class="card">
+                                    <div class="card-header">
+                                        {{product}}
+                                    </div>
+                                    <div class="card-body">
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="menu2" class="container tab-pane fade"><br>                        
+                            <div class="card-body">
+                                <div class="card">
+                                    <div class="card-header">
+                                        CAUSAS
+                                    </div>
+                                    <div class="card-body">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </div>
+
+    <footer></footer>    
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/map/main.js"></script>
+</body>
+</html>

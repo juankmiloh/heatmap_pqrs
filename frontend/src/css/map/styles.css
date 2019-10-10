@@ -87,7 +87,7 @@ header {
 .dropdown-backdrop {
 	position: fixed;
 	background-color: rgba(0,0,0,0.7);
-	z-index: 990;
+	z-index: 90;
 	font-family: 'Roboto', sans-serif;
 }
 
@@ -100,7 +100,7 @@ header {
 } */
 
 .infoFloating{
-	width:25em;
+	width:27.5em;
 	left:1em;
 	top:1em;
 	position:absolute; /* COLOCAR ESTE DIV SOBRE EL DIV DEL MAPA */
@@ -121,9 +121,14 @@ header {
 	border-collapse: collapse;
 	border: 2px black solid;
 	font: 12px sans-serif;
+} */
+
+th {
+	background-color: #f7f7f7;
+	border-left: 1.5px #eeecec solid;	
 }
 
 td {
-	border: 1px black solid;
-	padding: 5px;
-} */
+	border-right: 1.5px #f7f7f7 solid;
+	border-bottom: 1.5px #f7f7f7 solid;
+}

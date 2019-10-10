@@ -1,4 +1,4 @@
-function visualizar(opcion) {
+function visualizar(opcion) { //toca colocar opciones {opcionbody, opcionform(undefined), opcionboton }
   var ano = $("#inputGroupSelect0").val();
   var mes = $("#inputGroupSelect01").val();
   var servicio = $("#inputGroupSelect02").val();
@@ -9,19 +9,26 @@ function visualizar(opcion) {
 
   var cod_empresa;
 
-  console.log(opcion);
+  console.log("opcion seleccionada -> "+opcion);
 
-	if (opcion == "TODOS") { 
-    console.log("entro! a todos!");
+	if (opcion == "opcionbody") {     
+    console.log("funcion llamada desde el body!");
 		cod_empresa = 0;
     // servicio = "TODOS";
-  }else{ // se ejecuta cuando se le envia el parametro por medio del select de empresas
-    console.log("entro al JSON!");
+  }else if (opcion == "opcionform") { // se ejecuta cuando se le envia el parametro por medio del select de empresas
+    console.log("funcion llamada desde el form!");
+    // console.log("entro al JSON!");
 		$.each(datos_empresa, function (i, item) {
 			cod_empresa = item.cod_empresa;
 			// servicio = item.servicio;
     });
-    
+  }
+  else{ 
+    console.log("funcion llamada desde el boton!");
+    $.each(JSON.parse(opcion), function (i, item) {
+			cod_empresa = item.cod_empresa;
+			// servicio = item.servicio;
+    });
 	}
   // console.log(ano);
   // console.log(mes);
@@ -31,48 +38,56 @@ function visualizar(opcion) {
 
   require(
     [
-        "esri/Map",
-        "esri/layers/CSVLayer",
-        "esri/views/MapView",
-        "esri/widgets/Legend",
-        "esri/widgets/Search",
-        "esri/core/watchUtils",
-        "esri/widgets/BasemapToggle",
-        "esri/views/View"
+      "esri/Map",
+      "esri/layers/CSVLayer",
+      "esri/views/MapView",
+      "esri/widgets/Legend",
+      "esri/widgets/Search",
+      "esri/core/watchUtils",
+      "esri/widgets/BasemapToggle",
+      "esri/views/View"
     ],
     function(Map, CSVLayer, MapView, Legend, Search, watchUtils, BasemapToggle, View) {
-      // const url =
-      //     "http://172.16.128.141:5055/pqr/cod_empresa/2249/energia/2018";
-          // http://localhost:5055/pqr/cod_empresa/24860/glp/2018/1
-
       const url =
-          "http://localhost:5055/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
+                  // "http://172.16.128.141:5055/pqr/cod_empresa/2249/energia/2018";
+                  // "http://localhost:5055/pqr/empresa/0/glp/2018/1/0";
+                  "http://localhost:5055/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
 
       console.log("URL PQR's -> "+url);
 
-      // d3.text(url, function(data) {
-      //   console.log(data);
-      //   var parsedCSV = d3.csv.parseRows(data);
-
-      //   var container = d3.select(".table")
-      //     .append("table")
-
-      //     .selectAll("tr")
-      //       .data(parsedCSV).enter()
-      //       .append("tr")
-
-      //     .selectAll("td")
-      //       .data(function(d) { return d; }).enter()
-      //       .append("td")
-      //       .text(function(d) { return d; });
-      // });
-
-      // d3.csv(url).then(function(data) {
-      //   console.log(data[0]);
-      // });
-
       d3.csv(url, function(data){
-        console.log(data);
+        d3.csv(url, function(data){
+          console.log(data);
+          if (data.length > 1) {
+            console.log("tiene datos!");
+            $('#records_table tbody').empty();
+            $.each(JSON.parse(JSON.stringify(data)), function(i, item) {
+              if (item.cod_empresa != "") {
+                $tr = $('<tr>').append(
+                  $('<td>').html(item.empresa),
+                  $('<td>').text(item.centro_poblado),
+                  $('<td>').text(item.numero_pqrs),
+                  // $('<td>').html('<a href="javascript:visualizar(\'glp\')" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+                  $('<td>').html('<a href="javascript:visualizar(JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\''+servicio+'\':\'ENERGIA\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+                ).appendTo('#records_table tbody');
+              }          
+            });
+            if (servicio == "TODOS") {
+              $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's | "+servicio.toUpperCase()).show()
+            }else{
+              $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's")
+            }
+            $('#records_table').show('slow'); 
+          }else{
+            console.log("no hay datos!");
+            $('#records_table tbody').empty();
+            Swal.fire({
+              type: 'info',
+              title: 'Oops...',
+              text: 'El prestador no tiene PQR\'s para este período.',              
+            })
+          }        
+        });
       });
       
 
@@ -84,17 +99,17 @@ function visualizar(opcion) {
       // * time - the time of the event
 
       const template = {
-          title: "<b>EMPRESA:</b> {empresa} <br><b>Cantidad de PQR's:</b> {numero_pqrs}", //colocar servicio (energia)
-          content: "<!DOCTYPE html>"+
-          "<html lang='es' dir='ltr'>"+
-            "<head>"+
-              "<meta charset='utf-8'>"+
-              "<title></title>"+
-            "</head>"+
-            "<body>"+
-              "<br> <b>MUNICIPIO:</b> {centro_poblado}"+
-            "</body>"+
-          "</html>"
+        title: "<b>EMPRESA:</b> {empresa} <br><b>Cantidad de PQR's:</b> {numero_pqrs}", //colocar servicio (energia)
+        content: "<!DOCTYPE html>"+
+        "<html lang='es' dir='ltr'>"+
+          "<head>"+
+            "<meta charset='utf-8'>"+
+            "<title></title>"+
+          "</head>"+
+          "<body>"+
+            "<br> <b>MUNICIPIO:</b> {centro_poblado}"+
+          "</body>"+
+        "</html>"
       };
 
       // The heatmap renderer assigns each pixel in the view with
@@ -116,7 +131,7 @@ function visualizar(opcion) {
           { color: "#ffc700", ratio: 0.498 }, // Amarillo oscuro
           { color: "#fea701", ratio: 0.581 }, // Naranja claro
           { color: "#ff6400", ratio: 0.664 }, // Naranja
-          { color: "#ff3000", ratio: 1 } // Rojo
+          { color: "#ff3000", ratio: 1 }      // Rojo
         ],
         // colorStops: [
         //   { color: "rgba(63, 40, 102, 0)", ratio: 0 }, //rango de 0 a 1
@@ -195,13 +210,6 @@ function visualizar(opcion) {
         $(".collapse").collapse("hide");
         $("#butonOpcion").html("Opciones PQR's&nbsp&nbsp<i class='fa fa-angle-double-down' data-toggle='collapse' data-target='#collapseExample'></i>");
       });
-
-      // view.ui.add(
-      //   new Legend({
-      //   view: view
-      //   }),
-      //   "bottom-right"
-      // );
       
       var legend = new Legend({view: view}); 
       var search = new Search({view: view}); 

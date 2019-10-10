@@ -45,16 +45,17 @@ class PqrsRsource(Resource):
 		for pqr in data:
 			pqrs.append(
 				{
-					'empresa' : pqr[0],
-					'centro_poblado' : pqr[1],
-					'numero_pqrs' : pqr[2],
-					'latitude' : pqr[3],
-					'longitude' : pqr[4]
+					'cod_empresa' : pqr[0],
+					'empresa' : pqr[1],
+					'centro_poblado' : pqr[2],
+					'numero_pqrs' : pqr[3],
+					'latitude' : pqr[4],
+					'longitude' : pqr[5]
 				}
 			)
 
 		with open('file_pqrs.csv', 'w') as csvfile:
-		    fieldnames = ['empresa', 'centro_poblado', 'numero_pqrs', 'latitude', 'longitude']
+		    fieldnames = ['cod_empresa', 'empresa', 'centro_poblado', 'numero_pqrs', 'latitude', 'longitude']
 		    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 		    writer.writeheader()
 		    writer.writerows(pqrs)

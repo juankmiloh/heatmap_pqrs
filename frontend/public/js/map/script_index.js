@@ -5,6 +5,7 @@ $(document).ready(function(){
 	cambiarTabs();
 	loadEmpresas("TODOS", false); //SE CARGAN TODAS LAS EMPRESAS EN EL SELECT
 	loadCausas("TODOS");
+	localStorage.setItem('nombre', 'Juan');
 });
 
 /*CAMBIAR TABS*/
@@ -56,7 +57,7 @@ function watchBackdrop(){
 
 /*FUNCION QUE CARGA LOS ITEMS EN EL SELECT DE EMPRESAS PARTIENDO DE LA OPCION SELECCIONADA EN EL SELECT SERVICIO*/
 function loadEmpresas(select, causas) {
-	console.log("putas causas -> "+causas);
+	console.log("causas -> "+causas);
 	var servicio = select;
 	var url = "http://localhost:5055/empresa/"+servicio;
 

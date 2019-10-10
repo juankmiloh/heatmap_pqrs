@@ -2,6 +2,7 @@
     "name": "pqrs",
     "query" : [
 	"SELECT ",
+	"    IDENTIFICADOR_EMPRESA,",
 	"    ARE_ESP_NOMBRE,",
 	"    NOMBRE_CENTRO_POBLADO,",
 	"    SUM (Q.NUMERO_QUEJAS) NUMERO, ",
