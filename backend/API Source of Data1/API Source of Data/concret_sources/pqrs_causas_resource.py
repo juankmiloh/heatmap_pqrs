@@ -9,7 +9,7 @@ from flask import request
 from flask_restful import Resource
 from .config.oracle_connection import OracleConnection
 
-class PqrsRsource(Resource):
+class PqrsCausasRsource(Resource):
 	def get(self, anio = 0, mes = 0, servicio = "", empresa = 0, causa=0):
 
 		now = datetime.datetime.now()
@@ -28,7 +28,7 @@ class PqrsRsource(Resource):
 
 	def __upload_source(self):
 		tools = Tools.get_instance()
-		source = tools.get_source_by_name("pqrs")
+		source = tools.get_source_by_name("pqrs_causas")
 		self.__set_source(source)
 
 
@@ -39,33 +39,30 @@ class PqrsRsource(Resource):
 
 
 	def __getData(self):
-		pqrs = []
+		pqrs_causas = []
 		data = self.__execute_query()
 
 		for pqr in data:
-			pqrs.append(
+			pqrs_causas.append(
 				{
 					'servicio' : pqr[0],
-					'cod_empresa' : pqr[1],
-					'empresa' : pqr[2],
-					'centro_poblado' : pqr[3],
-					'numero_pqrs' : pqr[4],
-					'latitude' : pqr[5],
-					'longitude' : pqr[6]
+					'cod_causa' : pqr[1],
+					'desc_causa' : pqr[2],					
+					'numero_pqrs' : pqr[3]
 				}
 			)
 
 		with open('file_pqrs.csv', 'w') as csvfile:
-		    fieldnames = ['servicio', 'cod_empresa', 'empresa', 'centro_poblado', 'numero_pqrs', 'latitude', 'longitude']
+		    fieldnames = ['servicio', 'cod_causa', 'desc_causa', 'numero_pqrs']
 		    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 		    writer.writeheader()
-		    writer.writerows(pqrs)
+		    writer.writerows(pqrs_causas)
 
 		print("writing pqrs complete")
 
-		# return pqrs
+		return pqrs_causas
 
-		return send_file('file_pqrs.csv', as_attachment=True)
+		# return send_file('file_pqrs.csv', as_attachment=True)
 
 
 	def __execute_query(self):

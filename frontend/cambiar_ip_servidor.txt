@@ -1,0 +1,5 @@
+-- cambiar IP --
+backend\API Source of Data1\API Source of Data\concret_sources\config\configuration.json
+frontend\public\js\map\script_maparcgis_pqr.js
+frontend\src\js\map\script_index.js
+

@@ -1,4 +1,8 @@
-function visualizar(opcion) { //toca colocar opciones {opcionbody, opcionform(undefined), opcionboton }
+// CUANDO SE AÑADA LA FUNCIONALIDAD DE LA TABLA 2 Y 3 AÑADIR UN NUEVO PARAMETRO (OPCION) A LA FUNCION VISUALIZAR PARA QUE SE PUEDA LLAMAR LA FUNCIONALIDAD CORRESPONDIENTE 
+// REVISAR LA EMPRESA DE GLP INVERSIONES GLP SAS ESP NO APRECE EN LISTADO DE EMPRESAS
+// COLGAS DE OCCIDENTE SA ESP
+// QUE AL SELECCIONAR UN MUNICIPIO SE HAGA UN ZOOM EN EL MAPA
+function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcionform(undefined), opcionboton }
   var ano = $("#inputGroupSelect0").val();
   var mes = $("#inputGroupSelect01").val();
   var servicio = $("#inputGroupSelect02").val();
@@ -10,31 +14,33 @@ function visualizar(opcion) { //toca colocar opciones {opcionbody, opcionform(un
   var cod_empresa;
 
   console.log("opcion seleccionada -> "+opcion);
+  // console.log(ano);
+  // console.log(mes);
+  console.log("servicio -> " + servicio);
+  // console.log(cod_empresa);
+  console.log("valor empresa -> "+empresa);
 
-	if (opcion == "opcionbody") {     
+	if (opcion == 'opc1') {     
     console.log("funcion llamada desde el body!");
 		cod_empresa = 0;
     // servicio = "TODOS";
-  }else if (opcion == "opcionform") { // se ejecuta cuando se le envia el parametro por medio del select de empresas
+  }else if (opcion == 'opc2') { // se ejecuta cuando se le envia el parametro por medio del select de empresas
     console.log("funcion llamada desde el form!");
     // console.log("entro al JSON!");
 		$.each(datos_empresa, function (i, item) {
 			cod_empresa = item.cod_empresa;
 			// servicio = item.servicio;
     });
-  }
-  else{ 
+    $("#inputGroupSelect02 option:selected").removeAttr("selected");
+    $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected');
+    // $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', false);
+  }else if (opcion == 'opc3') {
     console.log("funcion llamada desde el boton!");
-    $.each(JSON.parse(opcion), function (i, item) {
+    $.each(JSON.parse(datos), function (i, item) {
 			cod_empresa = item.cod_empresa;
 			// servicio = item.servicio;
     });
 	}
-  // console.log(ano);
-  // console.log(mes);
-  console.log("servicio -> " + servicio);
-  // console.log(cod_empresa);
-  // console.log(empresa);
 
   require(
     [
@@ -55,32 +61,89 @@ function visualizar(opcion) { //toca colocar opciones {opcionbody, opcionform(un
 
       console.log("URL PQR's -> "+url);
 
+      var countries = [];
+      function unselect() {
+        $.each($(".car option:selected"), function () {
+          countries.push($(this).val());
+          $(this).prop('selected', false); // <-- HERE
+        });
+      }      
+
+      urlPqrsCausas = "http://localhost:5055/pqr_causas"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
+
+      console.log("URL PQR's CAUSAS -> "+urlPqrsCausas);
+
+      datos = {};
+      $.getJSON(urlPqrsCausas, datos, function(response){
+        console.log(response);
+        $.each(response, function(i, item) {
+          // console.log(item.servicio);
+          $tr = $('<tr>').append(
+            $('<td>').html(item.servicio),            
+            $('<td>').text(item.desc_causa),
+            $('<td>').text(item.numero_pqrs),
+            $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+servicio+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+          ).appendTo('#table_pqrs_causas tbody');
+        });
+      });
+
       d3.csv(url, function(data){
         d3.csv(url, function(data){
           console.log(data);
+          let servicioEmpresa;
           if (data.length > 1) {
             console.log("tiene datos!");
-            $('#records_table tbody').empty();
+            $('#table_pqrs tbody').empty();
             $.each(JSON.parse(JSON.stringify(data)), function(i, item) {
-              if (item.cod_empresa != "") {
-                $tr = $('<tr>').append(
-                  $('<td>').html(item.empresa),
-                  $('<td>').text(item.centro_poblado),
-                  $('<td>').text(item.numero_pqrs),
-                  // $('<td>').html('<a href="javascript:visualizar(\'glp\')" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
-                  $('<td>').html('<a href="javascript:visualizar(JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\''+servicio+'\':\'ENERGIA\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
-                ).appendTo('#records_table tbody');
-              }          
+              if (item.servicio != "") {
+                if ((opcion == "opc1" && servicio == "TODOS") || 
+                    (opcion == "opc2" && servicio == "TODOS") ||
+                    (opcion == "opc2" && empresa == "TODAS")) {
+                  // console.log("funcion de opcion -> "+opcion);
+                  $tr = $('<tr>').append(
+                    // $('<td>').html('<img src="./image/eh.ico" alt="">'),
+                    $('<td>').html(item.empresa),
+                    $('<td>').text(item.centro_poblado),
+                    $('<td>').text(item.numero_pqrs),
+                    $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+servicio+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+                  ).appendTo('#table_pqrs tbody');
+                }else{
+                  $tr = $('<tr>').append(                    
+                    $('<td>').html(item.empresa),
+                    $('<td>').text(item.centro_poblado),
+                    $('<td>').text(item.numero_pqrs)
+                  ).appendTo('#table_pqrs tbody');
+                  servicioEmpresa = item.servicio;
+                  localStorage.setItem('servicio', servicioEmpresa);
+                  console.log("probando servicio minuscula -> "+servicioEmpresa.toLowerCase());                  
+                  // $("#inputGroupSelect02 option:selected").prop("selected", false);
+                  $("#inputGroupSelect02 option:selected").removeAttr("selected");
+                  // $("#inputGroupSelect02").attr('selectedIndex', '-1');
+                  // $("#inputGroupSelect02").attr('selectedIndex', '-1').find("option:selected").removeAttr("selected");
+                  // $("#inputGroupSelect02")[0].selectedIndex = -1;
+                  // $('#inputGroupSelect02').val(0);
+                  // $('#inputGroupSelect02').attr('selectedIndex', 0);
+                  // $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', false);
+                  $('#inputGroupSelect02 option[value="'+servicioEmpresa.toLowerCase()+'"]').attr('selected', 'selected');
+                  // $("._statusDDL").val(2).change();
+                  $('#inputGroupSelect03 option[value="[{\'cod_empresa\':\''+item.cod_empresa+'servicio\':\''+servicioEmpresa.toLowerCase()+'\'}]"]').attr('selected', 'selected');
+                }            
+              }
             });
+            let servicioSave = localStorage.getItem('servicio');
+            if (servicioSave != null) {
+              loadEmpresas(servicioSave.toLowerCase(), true); 
+            }            
             if (servicio == "TODOS") {
               $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's | "+servicio.toUpperCase()).show()
             }else{
               $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's")
             }
-            $('#records_table').show('slow'); 
+            $('#table_pqrs').show('slow'); 
+            console.log("valor del select servicio -> "+$("#inputGroupSelect02").val());
           }else{
             console.log("no hay datos!");
-            $('#records_table tbody').empty();
+            $('#table_pqrs tbody').empty();
             Swal.fire({
               type: 'info',
               title: 'Oops...',

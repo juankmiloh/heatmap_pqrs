@@ -1,6 +1,7 @@
 from concret_sources.pqrs_resource import PqrsRsource
 from concret_sources.empresas_resource import EmpresasRsource
 from concret_sources.causas_resource import CausasRsource
+from concret_sources.pqrs_causas_resource import PqrsCausasRsource
 
 
 class SourceController():
@@ -50,4 +51,10 @@ class SourceController():
 
 			"/causas/<string:servicio>",
 			"/causas/<int:empresa>/<string:servicio>/<int:anio>/<int:mes>",
+		)
+
+		self.__api.add_resource(PqrsCausasRsource,
+			"/pqr_causas",
+
+			"/pqr_causas/<int:empresa>/<string:servicio>/<int:anio>/<int:mes>/<int:causa>",
 		)

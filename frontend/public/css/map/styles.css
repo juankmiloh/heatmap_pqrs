@@ -125,8 +125,17 @@ header {
 
 th {
 	background-color: #f7f7f7;
-	border-left: 1.5px #eeecec solid;	
+	border-left: 1.5px #eeecec solid;
+	position: sticky;
 }
+
+/*no esta en uso - la idea es dejar fija la barra del header de la tabla*/
+/* .campos_th {
+	background-color: #f7f7f7;
+	border-left: 1.5px #eeecec solid;
+	position: fixed;
+	width: 156px;
+} */
 
 td {
 	border-right: 1.5px #f7f7f7 solid;

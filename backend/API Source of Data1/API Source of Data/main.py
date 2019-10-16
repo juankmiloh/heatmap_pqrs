@@ -9,6 +9,7 @@ api = Api(app)
 CORS(app, resources={r"/pqr/*": {"origins": "*"}})
 CORS(app, resources={r"/empresa/*": {"origins": "*"}})
 CORS(app, resources={r"/causas/*": {"origins": "*"}})
+CORS(app, resources={r"/pqr_causas/*": {"origins": "*"}})
 
 SourceController (api)
 
