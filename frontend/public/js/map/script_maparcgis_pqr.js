@@ -3,6 +3,7 @@
 // COLGAS DE OCCIDENTE SA ESP
 // QUE AL SELECCIONAR UN MUNICIPIO SE HAGA UN ZOOM EN EL MAPA
 function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcionform(undefined), opcionboton }
+  $('#table_pqrs_causas').hide();
   var ano = $("#inputGroupSelect0").val();
   var mes = $("#inputGroupSelect01").val();
   var servicio = $("#inputGroupSelect02").val();
@@ -35,12 +36,22 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
     $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected');
     // $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', false);
   }else if (opcion == 'opc3') {
-    console.log("funcion llamada desde el boton!");
+    console.log("funcion llamada desde el icono de la tabla empresas!");
     $.each(JSON.parse(datos), function (i, item) {
-			cod_empresa = item.cod_empresa;
+      cod_empresa = item.cod_empresa;
+      cod_causa = item.cod_causa;
 			// servicio = item.servicio;
     });
-	}
+  }else if (opcion == 'opc4') {
+    console.log("funcion llamada desde el icono de causas!");
+    $.each(JSON.parse(datos), function (i, item) {
+      cod_causa = item.cod_causa;      
+      cod_empresa = item.cod_empresa;
+    });
+  }
+
+  console.log("causa desde icono -> "+cod_causa);
+  console.log("empresa desde icono -> "+cod_empresa);
 
   require(
     [
@@ -74,17 +85,39 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
       console.log("URL PQR's CAUSAS -> "+urlPqrsCausas);
 
       datos = {};
-      $.getJSON(urlPqrsCausas, datos, function(response){
-        console.log(response);
-        $.each(response, function(i, item) {
-          // console.log(item.servicio);
-          $tr = $('<tr>').append(
-            $('<td>').html(item.servicio),            
-            $('<td>').text(item.desc_causa),
-            $('<td>').text(item.numero_pqrs),
-            $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+servicio+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
-          ).appendTo('#table_pqrs_causas tbody');
-        });
+      $('#table_pqrs_causas tbody').empty();
+      // $.getJSON(urlPqrsCausas, datos, function(response){
+      //   console.log(response);
+      //   $.each(response, function(i, item) {
+      //     // console.log(item.servicio);
+      //     $tr = $('<tr>').append(
+      //       $('<td>').html(item.servicio),            
+      //       $('<td>').text(item.desc_causa),
+      //       $('<td>').text(item.numero_pqrs),
+      //       $('<td>').html('<a href="javascript:visualizar(\'opc4\',JSON.stringify([{\'cod_empresa\':'+cod_empresa+',\'cod_causa\':\''+item.cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')    
+      //     ).appendTo('#table_pqrs_causas tbody');
+      //   });
+      // });
+
+      // $("#transfer1").html("Cargando información...");
+      $('#transfer1').css("display", "block");
+      $.ajax({
+        type: "GET",
+        url: urlPqrsCausas,
+        // data: {change_session_id:change_session_id},
+        success: function(data){
+          $('#transfer1').css("display", "none");
+          console.log(data);
+          $.each(data, function(i, item) {
+            $tr = $('<tr>').append(
+              $('<td>').html(item.servicio),
+              $('<td>').text(item.desc_causa),
+              $('<td>').text(item.numero_pqrs),
+              $('<td>').html('<a href="javascript:visualizar(\'opc4\',JSON.stringify([{\'cod_empresa\':'+cod_empresa+',\'cod_causa\':\''+item.cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')    
+            ).appendTo('#table_pqrs_causas tbody');
+          });
+          $('#table_pqrs_causas').show();
+        }
       });
 
       d3.csv(url, function(data){
@@ -98,14 +131,16 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
               if (item.servicio != "") {
                 if ((opcion == "opc1" && servicio == "TODOS") || 
                     (opcion == "opc2" && servicio == "TODOS") ||
-                    (opcion == "opc2" && empresa == "TODAS")) {
+                    (opcion == "opc2" && empresa == "TODAS") ||
+                    (opcion == "opc4" && servicio == "TODOS") ||
+                    (opcion == "opc4" && empresa == "TODAS")) {
                   // console.log("funcion de opcion -> "+opcion);
                   $tr = $('<tr>').append(
                     // $('<td>').html('<img src="./image/eh.ico" alt="">'),
                     $('<td>').html(item.empresa),
                     $('<td>').text(item.centro_poblado),
                     $('<td>').text(item.numero_pqrs),
-                    $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+servicio+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+                    $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+servicio+'\',\'cod_causa\':\''+cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
                   ).appendTo('#table_pqrs tbody');
                 }else{
                   $tr = $('<tr>').append(                    
@@ -139,7 +174,7 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
             }else{
               $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's")
             }
-            $('#table_pqrs').show('slow'); 
+            $('#table_pqrs').show(); 
             console.log("valor del select servicio -> "+$("#inputGroupSelect02").val());
           }else{
             console.log("no hay datos!");
