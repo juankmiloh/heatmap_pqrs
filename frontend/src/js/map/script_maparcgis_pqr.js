@@ -13,45 +13,87 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
   var meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
 
   var cod_empresa;
+  var lat;
+  var long;
+  var coordenadas;
+  var zoom;
 
-  console.log("opcion seleccionada -> "+opcion);
-  // console.log(ano);
-  // console.log(mes);
-  console.log("servicio -> " + servicio);
-  // console.log(cod_empresa);
-  console.log("valor empresa -> "+empresa);
+  localStorage.setItem('servicioAntes', servicio);
 
 	if (opcion == 'opc1') {     
-    console.log("funcion llamada desde el body!");
+    console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL BODY");
 		cod_empresa = 0;
-    // servicio = "TODOS";
+    localStorage.setItem('empresaAntes', cod_empresa);
+    servicio = "TODOS";
   }else if (opcion == 'opc2') { // se ejecuta cuando se le envia el parametro por medio del select de empresas
-    console.log("funcion llamada desde el form!");
-    // console.log("entro al JSON!");
+    console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL FORM (OPCIONES HEADER)");
 		$.each(datos_empresa, function (i, item) {
 			cod_empresa = item.cod_empresa;
-			// servicio = item.servicio;
+			servicioJSON = item.servicio;
     });
-    $("#inputGroupSelect02 option:selected").removeAttr("selected");
-    $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected');
-    // $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', false);
-  }else if (opcion == 'opc3') {
-    console.log("funcion llamada desde el icono de la tabla empresas!");
+    console.log("servicio JSON -> "+servicioJSON);
+    let servicioAntes = localStorage.getItem('servicioAntes');
+    $('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
+	  localStorage.setItem('servicioAntes', servicioJSON);
+    $('#inputGroupSelect02 option[value="'+servicioJSON+'"]').attr('selected', 'selected'); // cambia el valor del select
+
+    let empresaAntes = localStorage.getItem('empresaAntes');
+    $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']").removeAttr("selected");
+    console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']");  
+    localStorage.setItem('empresaAntes', cod_empresa);
+    loadEmpresas(servicioJSON, true, cod_empresa);
+    servicio = servicioJSON;
+  }else if (opcion == 'opc3') {    
+    console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL ICONO DE LA TABLA EMPRESAS");
     $.each(JSON.parse(datos), function (i, item) {
       cod_empresa = item.cod_empresa;
       cod_causa = item.cod_causa;
-			// servicio = item.servicio;
-    });
+			servicioJSON = item.servicio;
+    });    
+    let servicioAntes = localStorage.getItem('servicioAntes');
+    $('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
+	  localStorage.setItem('servicioAntes', servicioJSON);
+    $('#inputGroupSelect02 option[value="'+servicioJSON+'"]').attr('selected', 'selected'); // cambia el valor del select
+
+    let empresaAntes = localStorage.getItem('empresaAntes');
+    console.log("empresa antes -> "+empresaAntes);
+    var arreglo_empresa = [];
+    var json_empresa;
+    var obj = new Object(); //nuevo objeto siempre que entre al for
+    obj.cod_empresa = parseInt(empresaAntes);
+    obj.servicio = servicioAntes;
+    
+    arreglo_empresa.push(obj);    
+    json_empresa = JSON.stringify(arreglo_empresa); //Convertimos el arreglo a formato json
+
+    // $('#inputGroupSelect03 option[value="'+JSON.parse(json_empresa)+'"]').removeAttr("selected");
+    // console.log('#inputGroupSelect03 option[value="'+json_empresa+'"]');
+
+    // $("#inputGroupSelect03 option[value='[{\"cod_empresa\":0,\"servicio\":\"TODOS\"}]']").removeAttr("selected");
+    
+    $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']").removeAttr("selected");
+    console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']");  
+    localStorage.setItem('empresaAntes', cod_empresa);
+    loadEmpresas(servicioJSON, true, cod_empresa);
+    // $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+cod_empresa+",\"servicio\":\""+servicioJSON.toUpperCase()+"\"}]']").attr('selected', 'selected'); // cambia el valor del select    
+    // console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+cod_empresa+",\"servicio\":\""+servicioJSON.toUpperCase()+"\"}]']");
+    servicio = servicioJSON;
   }else if (opcion == 'opc4') {
-    console.log("funcion llamada desde el icono de causas!");
+    console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL ICONO DE LA TABLA CAUSAS");
     $.each(JSON.parse(datos), function (i, item) {
       cod_causa = item.cod_causa;      
       cod_empresa = item.cod_empresa;
     });
   }
 
-  console.log("causa desde icono -> "+cod_causa);
-  console.log("empresa desde icono -> "+cod_empresa);
+  console.log("OPCIÓN SELECCIONADA -> " + opcion);
+  // console.log(ano);
+  // console.log(mes);
+  console.log("SERVICIO SELECCIONADO -> " + servicio);
+  // console.log(cod_empresa);
+  // console.log("NOMBRE EMPRESA SELECCIONADA -> " + empresa);
+  // console.log("CAUSA SELECCIONADA -> " + cod_causa);
+  // console.log("CODIGO EMPRESA SELECCIONADO -> " + cod_empresa);
 
   require(
     [
@@ -70,122 +112,96 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
                   // "http://localhost:5055/pqr/empresa/0/glp/2018/1/0";
                   "http://localhost:5055/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
 
-      console.log("URL PQR's -> "+url);
-
-      var countries = [];
-      function unselect() {
-        $.each($(".car option:selected"), function () {
-          countries.push($(this).val());
-          $(this).prop('selected', false); // <-- HERE
-        });
-      }      
+      // console.log("URL PQR's -> " + url);
 
       urlPqrsCausas = "http://localhost:5055/pqr_causas"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
 
-      console.log("URL PQR's CAUSAS -> "+urlPqrsCausas);
+      // console.log("URL PQR's CAUSAS -> "+urlPqrsCausas);
 
-      datos = {};
       $('#table_pqrs_causas tbody').empty();
-      // $.getJSON(urlPqrsCausas, datos, function(response){
-      //   console.log(response);
-      //   $.each(response, function(i, item) {
-      //     // console.log(item.servicio);
-      //     $tr = $('<tr>').append(
-      //       $('<td>').html(item.servicio),            
-      //       $('<td>').text(item.desc_causa),
-      //       $('<td>').text(item.numero_pqrs),
-      //       $('<td>').html('<a href="javascript:visualizar(\'opc4\',JSON.stringify([{\'cod_empresa\':'+cod_empresa+',\'cod_causa\':\''+item.cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')    
-      //     ).appendTo('#table_pqrs_causas tbody');
-      //   });
-      // });
-
-      // $("#transfer1").html("Cargando información...");
       $('#transfer1').css("display", "block");
       $.ajax({
         type: "GET",
-        url: urlPqrsCausas,
-        // data: {change_session_id:change_session_id},
+        url: urlPqrsCausas,        
         success: function(data){
           $('#transfer1').css("display", "none");
-          console.log(data);
+          // console.log("SE GENERA JSON PQR´s CAUSAS");
+          // console.log(data);
           $.each(data, function(i, item) {
             $tr = $('<tr>').append(
               $('<td>').html(item.servicio),
               $('<td>').text(item.desc_causa),
               $('<td>').text(item.numero_pqrs),
               $('<td>').html('<a href="javascript:visualizar(\'opc4\',JSON.stringify([{\'cod_empresa\':'+cod_empresa+',\'cod_causa\':\''+item.cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')    
-            ).appendTo('#table_pqrs_causas tbody');
+            ).appendTo('#table_pqrs_causas tbody');            
           });
           $('#table_pqrs_causas').show();
         }
       });
 
-      d3.csv(url, function(data){
-        d3.csv(url, function(data){
+      d3.csv(url, function(data){        
+        let servicioEmpresa;
+        if (data.length > 1) {
+          // console.log("SE GENERA JSON PQR´s");
           console.log(data);
-          let servicioEmpresa;
-          if (data.length > 1) {
-            console.log("tiene datos!");
-            $('#table_pqrs tbody').empty();
-            $.each(JSON.parse(JSON.stringify(data)), function(i, item) {
-              if (item.servicio != "") {
-                if ((opcion == "opc1" && servicio == "TODOS") || 
-                    (opcion == "opc2" && servicio == "TODOS") ||
-                    (opcion == "opc2" && empresa == "TODAS") ||
-                    (opcion == "opc4" && servicio == "TODOS") ||
-                    (opcion == "opc4" && empresa == "TODAS")) {
-                  // console.log("funcion de opcion -> "+opcion);
-                  $tr = $('<tr>').append(
-                    // $('<td>').html('<img src="./image/eh.ico" alt="">'),
-                    $('<td>').html(item.empresa),
-                    $('<td>').text(item.centro_poblado),
-                    $('<td>').text(item.numero_pqrs),
-                    $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+servicio+'\',\'cod_causa\':\''+cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
-                  ).appendTo('#table_pqrs tbody');
-                }else{
-                  $tr = $('<tr>').append(                    
-                    $('<td>').html(item.empresa),
-                    $('<td>').text(item.centro_poblado),
-                    $('<td>').text(item.numero_pqrs)
-                  ).appendTo('#table_pqrs tbody');
-                  servicioEmpresa = item.servicio;
-                  localStorage.setItem('servicio', servicioEmpresa);
-                  console.log("probando servicio minuscula -> "+servicioEmpresa.toLowerCase());                  
-                  // $("#inputGroupSelect02 option:selected").prop("selected", false);
-                  $("#inputGroupSelect02 option:selected").removeAttr("selected");
-                  // $("#inputGroupSelect02").attr('selectedIndex', '-1');
-                  // $("#inputGroupSelect02").attr('selectedIndex', '-1').find("option:selected").removeAttr("selected");
-                  // $("#inputGroupSelect02")[0].selectedIndex = -1;
-                  // $('#inputGroupSelect02').val(0);
-                  // $('#inputGroupSelect02').attr('selectedIndex', 0);
-                  // $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', false);
-                  $('#inputGroupSelect02 option[value="'+servicioEmpresa.toLowerCase()+'"]').attr('selected', 'selected');
-                  // $("._statusDDL").val(2).change();
-                  $('#inputGroupSelect03 option[value="[{\'cod_empresa\':\''+item.cod_empresa+'servicio\':\''+servicioEmpresa.toLowerCase()+'\'}]"]').attr('selected', 'selected');
-                }            
-              }
-            });
-            let servicioSave = localStorage.getItem('servicio');
-            if (servicioSave != null) {
-              loadEmpresas(servicioSave.toLowerCase(), true); 
-            }            
-            if (servicio == "TODOS") {
-              $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's | "+servicio.toUpperCase()).show()
-            }else{
-              $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's")
+          $('#table_pqrs tbody').empty();
+          $.each(JSON.parse(JSON.stringify(data)), function(i, item) {
+            if (item.servicio != "") {
+              if ((opcion == "opc1" && servicio == "TODOS") || 
+                  (opcion == "opc2" && servicio == "TODOS") ||
+                  (opcion == "opc2" && empresa == "TODAS") ||
+                  (opcion == "opc4" && servicio == "TODOS") ||
+                  (opcion == "opc4" && empresa == "TODAS")) {
+                $tr = $('<tr>').append(
+                  $('<td>').html(item.empresa),
+                  $('<td>').text(item.centro_poblado),
+                  $('<td>').text(item.numero_pqrs),
+                  $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+item.servicio.toLowerCase()+'\',\'cod_causa\':\''+cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+                ).appendTo('#table_pqrs tbody');
+              }else{
+                $tr = $('<tr>').append(                    
+                  $('<td>').html(item.empresa),
+                  $('<td>').text(item.centro_poblado),
+                  $('<td>').text(item.numero_pqrs)
+                ).appendTo('#table_pqrs tbody');
+                // servicioEmpresa = item.servicio;
+                // localStorage.setItem('servicio', servicioEmpresa);
+                // console.log("servico antes de borrar -> " + servicio);
+                // $('#inputGroupSelect02 option[value="'+servicio+'"]').removeAttr("selected");
+                // // $('#inputGroupSelect02 option[value="energia"]').removeAttr("selected");
+                // // $('#inputGroupSelect02 option[value="gas"]').removeAttr("selected");
+                // // $('#inputGroupSelect02 option[value="glp"]').removeAttr("selected");
+                // // console.log("borro el selected!");
+                // $('#inputGroupSelect02 option[value="'+servicioEmpresa.toLowerCase()+'"]').attr('selected', 'selected'); // cambia el valor del select
+                // $('#inputGroupSelect03 option[value="[{\'cod_empresa\':\''+item.cod_empresa+'servicio\':\''+servicioEmpresa.toLowerCase()+'\'}]"]').attr('selected', 'selected');
+              }            
             }
-            $('#table_pqrs').show(); 
-            console.log("valor del select servicio -> "+$("#inputGroupSelect02").val());
+            if (item.latitude != undefined) {
+              // localStorage.setItem('latitud', item.latitude);
+              // localStorage.setItem('longitud', item.longitude);
+            }                       
+          });
+          
+          // let servicioSave = localStorage.getItem('servicio');
+          // if (servicioSave != null) {
+          //   loadEmpresas(servicioSave.toLowerCase(), true);
+          // }            
+          if (servicio == "TODOS") {
+            $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's | "+servicio.toUpperCase()).show()
           }else{
-            console.log("no hay datos!");
-            $('#table_pqrs tbody').empty();
-            Swal.fire({
-              type: 'info',
-              title: 'Oops...',
-              text: 'El prestador no tiene PQR\'s para este período.',              
-            })
-          }        
-        });
+            $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's")
+          }
+          $('#table_pqrs').show();
+          // console.log("valor del select servicio -> "+$("#inputGroupSelect02").val());
+        }else{
+          console.log("NO SE GENERO JSON DE PQR's");
+          $('#table_pqrs tbody').empty();
+          Swal.fire({
+            type: 'info',
+            title: 'Oops...',
+            text: 'El prestador no tiene PQR\'s para este período.',
+          })
+        }        
       });
       
 
@@ -197,7 +213,7 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
       // * time - the time of the event
 
       const template = {
-        title: "<b>EMPRESA:</b> {empresa} <br><b>Cantidad de PQR's:</b> {numero_pqrs}", //colocar servicio (energia)
+        title: "<b>EMPRESA:</b> {empresa} <br><b>Cantidad de PQR's:</b> {numero_pqrs}",
         content: "<!DOCTYPE html>"+
         "<html lang='es' dir='ltr'>"+
           "<head>"+
@@ -231,22 +247,7 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
           { color: "#ff6400", ratio: 0.664 }, // Naranja
           { color: "#ff3000", ratio: 1 }      // Rojo
         ],
-        // colorStops: [
-        //   { color: "rgba(63, 40, 102, 0)", ratio: 0 }, //rango de 0 a 1
-        //   { color: "#472b77", ratio: 0.083 },
-        //   { color: "#4e2d87", ratio: 0.166 },
-        //   { color: "#563098", ratio: 0.249 },
-        //   { color: "#5d32a8", ratio: 0.332 },
-        //   { color: "#6735be", ratio: 0.415 },
-        //   { color: "#7139d4", ratio: 0.498 },
-        //   { color: "#7b3ce9", ratio: 0.581 },
-        //   { color: "#853fff", ratio: 0.664 },
-        //   // { color: "#a46fbf", ratio: 0.747 },
-        //   // { color: "#c29f80", ratio: 0.83 },
-        //   // { color: "#e0cf40", ratio: 0.913 },
-        //   { color: "#ffff00", ratio: 1 }
-        // ],
-        maxPixelIntensity: 2000, //formatear tildes ortografia desde la consulta sql select convert('a','utf8','us7ascii') from dual;https://www.google.com/search?rlz=1C1SQJL_esCO841CO841&ei=RrloXcGjNcra5gLPkrboCg&q=poner+utf8+oracle+sql+query&oq=poner+utf8+oracle+sql+query&gs_l=psy-ab.3..33i21.5836.10488..10573...0.2..0.228.885.0j4j1......0....1..gws-wiz.......0i71j33i22i29i30j33i160.1Ubeg3RbUvM&ved=0ahUKEwjB3uao86nkAhVKrVkKHU-JDa0Q4dUDCAo&uact=5
+        maxPixelIntensity: 2000,
         minPixelIntensity: 50
       };
 
@@ -289,12 +290,26 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
         // ground: "world-elevation"
       });
 
+      if (opcion == 'opc3'){
+        lat = localStorage.getItem('latitud');
+        long = localStorage.getItem('longitud');
+        // coordenadas = [long, lat];
+        coordenadas = [-75.47106040285713, 6.007862882142857];
+        zoom = 6;
+        // console.log(coordenadas);
+      } else
+      {
+        // console.log("no entro al if!");
+        coordenadas = [-75.47106040285713, 6.007862882142857];
+        zoom = 6;
+      }
+
       const view = new MapView({
         container: "viewDiv",
-        center: [-75.47106040285713, 6.007862882142857], // [horizontal, vertical]
-        zoom: 6,
+        center: coordenadas, // [horizontal (long), vertical (lat)]
+        zoom: zoom,
         map: map
-      });      
+      });
       
       // Display the loading indicator when the view is updating
       watchUtils.whenTrue(view, "updating", function(evt) {
@@ -309,8 +324,8 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
         $("#butonOpcion").html("Opciones PQR's&nbsp&nbsp<i class='fa fa-angle-double-down' data-toggle='collapse' data-target='#collapseExample'></i>");
       });
       
-      var legend = new Legend({view: view}); 
-      var search = new Search({view: view}); 
+      var legend = new Legend({view: view});
+      var search = new Search({view: view});
       var basemapToggle = new BasemapToggle({view: view, nextBasemap: "gray"});
 
       view.ui.add(legend, "bottom-right"); // MUESTRA LAS CONVENCIONES DEL MAPA

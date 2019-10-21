@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #01426A;">
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #01426A; display: none;">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -81,7 +81,7 @@
 
             <div style="padding-top: 0.35em;"></div>
 
-            <div class="collapse" id="collapseExample">
+            <div class="collapse1" id="collapseExample">
                 <div class="row">
                     <div class="col-xs-12 col-md-12">
 
@@ -134,7 +134,7 @@
                                             <div class="input-group-prepend">
                                                 <label class="input-group-text" for="inputGroupSelect02"><b>SERVICIO</b></label>
                                             </div>
-                                            <select class="custom-select" id="inputGroupSelect02" onchange="javascript:loadEmpresas(this.value, true)">
+                                            <select class="custom-select" id="inputGroupSelect02" onchange="javascript:loadEmpresas(this.value, true, 0)">
                                                 <option selected value="TODOS">TODOS</option>
                                                 <option value="energia">ENERGÍA</option>
                                                 <option value="gas">GAS</option>
@@ -234,7 +234,7 @@
                             <div class="card-body">
                                 <div class="card">
                                     <div class="card-header">
-                                        {{product}}
+                                        <!-- {{product}} -->
                                     </div>
                                     <div class="card-body">
                                     
@@ -278,7 +278,7 @@
 
     <footer></footer>    
 
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="js/map/main.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/map/main.js"></script> -->
 </body>
 </html>
