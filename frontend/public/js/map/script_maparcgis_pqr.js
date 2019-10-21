@@ -41,7 +41,7 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
     $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']").removeAttr("selected");
     console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']");  
     localStorage.setItem('empresaAntes', cod_empresa);
-    loadEmpresas(servicioJSON, true, cod_empresa);
+    // loadEmpresas(servicioJSON, true, cod_empresa);
     servicio = servicioJSON;
   }else if (opcion == 'opc3') {    
     console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL ICONO DE LA TABLA EMPRESAS");
