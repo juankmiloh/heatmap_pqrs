@@ -2,86 +2,92 @@
 // REVISAR LA EMPRESA DE GLP INVERSIONES GLP SAS ESP NO APRECE EN LISTADO DE EMPRESAS
 // COLGAS DE OCCIDENTE SA ESP
 // QUE AL SELECCIONAR UN MUNICIPIO SE HAGA UN ZOOM EN EL MAPA
-function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcionform(undefined), opcionboton }
-  $('#table_pqrs_causas').hide();
-  var ano = $("#inputGroupSelect0").val();
-  var mes = $("#inputGroupSelect01").val();
-  var servicio = $("#inputGroupSelect02").val();
-  var datos_empresa = JSON.parse($("#inputGroupSelect03").val());
-  var cod_causa = $("#inputGroupSelect04").val();
-  var empresa = $("#inputGroupSelect03 option:selected").text();
-  var meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+// CAMBIAR EL LET POR UNA VARIABLE GLOBAL
 
+/* FUNCIÓN PARA CAMBIAR LA VISUALIZACIÓN DEL MAPA
+ * OPCION : PARAMETRO QUE CAPTURA DESDE DONDE SE LLAMA LA FUNCION { opcionBody, opcionForm, opcionBoton }
+ * DATOS : PARAMETRO QUE CAPTURA LAS CARACTERISTICAS SELECCIONADAS DESDE LAS OPCIONES { cod_empresa, servicio, causa } 
+ */
+function visualizar(opcion, datos) {
+  $('#table_pqrs_causas').hide(); // SE OCULTA LA TABLA DONDE SE CARGAN LAS CAUSAS DE LAS EMPRESAs
+
+  /* VALORES CAPTURADOS DESDE EL HEADER DE OPCIONES */
+  var ano = $("#inputGroupSelect0").val(); // AÑO
+  var mes = $("#inputGroupSelect01").val(); // MES
+  var servicio = $("#inputGroupSelect02").val(); // SERVICIO
+  var cod_causa = $("#inputGroupSelect04").val(); // CODIGO DE CAUSA
+  var empresa = $("#inputGroupSelect03 option:selected").text(); // NOMBRE DE LA EMPRESA
+
+  /* VALORES CAPTURADOS DESDE EL SELECT DE EMPRESAS */
+  var datos_empresa = JSON.parse($("#inputGroupSelect03").val()); // SE CAPTURAN LOS VALORES DE COD_EMPRESA | SERVICIO
+  
+  /* OTROS VALORES */
+  var meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
   var cod_empresa;
   var lat;
   var long;
   var coordenadas;
   var zoom;
+  var servicioAntes;
+  var empresaAntes;
 
   localStorage.setItem('servicioAntes', servicio);
 
-	if (opcion == 'opc1') {     
+	if (opcion == 'opcionBody') { // SE EJECUTA CUANDO SE LLAMA LA FUNCIÓN DESDE EL BODY
     console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL BODY");
-		cod_empresa = 0;
-    localStorage.setItem('empresaAntes', cod_empresa);
-    servicio = "TODOS";
-  }else if (opcion == 'opc2') { // se ejecuta cuando se le envia el parametro por medio del select de empresas
+    cod_empresa = 0;
+    // servicio = "TODOS";
+    // localStorage.setItem('empresaAntes', cod_empresa);
+  }else if (opcion == 'opcionForm') { // SE EJECUTA CUANDO SE LLAMA LA FUNCIÓN DESDE EL FORM (OPCIONES HEADER)
     console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL FORM (OPCIONES HEADER)");
-		$.each(datos_empresa, function (i, item) {
-			cod_empresa = item.cod_empresa;
-			servicioJSON = item.servicio;
+    $('#inputGroupSelect02 option[value="TODOS"]').removeAttr("selected");
+    $('#inputGroupSelect02 option[value="energia"]').removeAttr("selected");
+    $('#inputGroupSelect02 option[value="gas"]').removeAttr("selected");
+    $('#inputGroupSelect02 option[value="glp"]').removeAttr("selected");
+    $.each(datos_empresa, function (i, item) { // SE CAPTURAN LOS VALORES DEL SELECT EMPRESAS { cod_empresa, servicio }
+      cod_empresa = item.cod_empresa; // SE MODIFICA EL VALOR DEL COD_EMPRESA
+      servicio = item.servicio; // SE MODIFICA EL VALOR DEL SERVICIO      
     });
-    console.log("servicio JSON -> "+servicioJSON);
-    let servicioAntes = localStorage.getItem('servicioAntes');
-    $('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
-	  localStorage.setItem('servicioAntes', servicioJSON);
-    $('#inputGroupSelect02 option[value="'+servicioJSON+'"]').attr('selected', 'selected'); // cambia el valor del select
-
-    let empresaAntes = localStorage.getItem('empresaAntes');
-    $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']").removeAttr("selected");
-    console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']");  
-    localStorage.setItem('empresaAntes', cod_empresa);
-    // loadEmpresas(servicioJSON, true, cod_empresa);
-    servicio = servicioJSON;
-  }else if (opcion == 'opc3') {    
+    if (servicio != "TODOS") {
+      $('#inputGroupSelect02 option[value="'+servicio.toLowerCase()+'"]').attr('selected', 'selected'); // cambia el valor del SELECT
+    } else {
+      $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected'); // cambia el valor del SELECT
+    }    
+  }else if (opcion == 'opcionBtnEmpresas') { // SE EJECUTA CUANDO SE LLAMA LA FUNCIÓN DESDE EL ICONO DE LA TABLA EMPRESAS
     console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL ICONO DE LA TABLA EMPRESAS");
-    $.each(JSON.parse(datos), function (i, item) {
-      cod_empresa = item.cod_empresa;
-      cod_causa = item.cod_causa;
-			servicioJSON = item.servicio;
-    });    
-    let servicioAntes = localStorage.getItem('servicioAntes');
-    $('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
-	  localStorage.setItem('servicioAntes', servicioJSON);
-    $('#inputGroupSelect02 option[value="'+servicioJSON+'"]').attr('selected', 'selected'); // cambia el valor del select
+    $('#inputGroupSelect02 option[value="TODOS"]').removeAttr("selected");
+    $('#inputGroupSelect02 option[value="energia"]').removeAttr("selected");
+    $('#inputGroupSelect02 option[value="gas"]').removeAttr("selected");
+    $('#inputGroupSelect02 option[value="glp"]').removeAttr("selected");
+    $.each(JSON.parse(datos), function (i, item) { // SE CAPTURAN LOS NUEVOS VALORES DEL ICONO DE LA TABLA EMPRESAS { cod_empresa, servicio, cod_causa }
+      cod_empresa = item.cod_empresa; // SE MODIFICA EL VALOR DEL COD_EMPRESA
+      servicio = item.servicio; // SE MODIFICA EL VALOR DEL SERVICIO
+      cod_causa = item.cod_causa; // SE MODIFICA EL VALOR DEL COD_CAUSA
+    });
 
-    let empresaAntes = localStorage.getItem('empresaAntes');
-    console.log("empresa antes -> "+empresaAntes);
-    var arreglo_empresa = [];
-    var json_empresa;
-    var obj = new Object(); //nuevo objeto siempre que entre al for
-    obj.cod_empresa = parseInt(empresaAntes);
-    obj.servicio = servicioAntes;
+    loadEmpresas(servicio, true, cod_empresa);
+
+    // servicioAntes = localStorage.getItem('servicioAntes');
+    // $('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
+	  // localStorage.setItem('servicioAntes', servicio);
+    // $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected'); // cambia el valor del select
+    if (servicio != "TODOS") {
+      $('#inputGroupSelect02 option[value="'+servicio.toLowerCase()+'"]').attr('selected', 'selected'); // cambia el valor del SELECT
+    } else {
+      $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected'); // cambia el valor del SELECT
+    }    
+
+    // empresaAntes = localStorage.getItem('empresaAntes');
     
-    arreglo_empresa.push(obj);    
-    json_empresa = JSON.stringify(arreglo_empresa); //Convertimos el arreglo a formato json
-
-    // $('#inputGroupSelect03 option[value="'+JSON.parse(json_empresa)+'"]').removeAttr("selected");
-    // console.log('#inputGroupSelect03 option[value="'+json_empresa+'"]');
-
-    // $("#inputGroupSelect03 option[value='[{\"cod_empresa\":0,\"servicio\":\"TODOS\"}]']").removeAttr("selected");
-    
-    $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']").removeAttr("selected");
-    console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']");  
-    localStorage.setItem('empresaAntes', cod_empresa);
-    loadEmpresas(servicioJSON, true, cod_empresa);
-    // $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+cod_empresa+",\"servicio\":\""+servicioJSON.toUpperCase()+"\"}]']").attr('selected', 'selected'); // cambia el valor del select    
-    // console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+cod_empresa+",\"servicio\":\""+servicioJSON.toUpperCase()+"\"}]']");
-    servicio = servicioJSON;
-  }else if (opcion == 'opc4') {
+    // $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']").removeAttr("selected");
+    // // console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+empresaAntes+",\"servicio\":\""+servicioAntes+"\"}]']");  
+    // localStorage.setItem('empresaAntes', cod_empresa);
+    // $("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+cod_empresa+",\"servicio\":\""+servicio.toUpperCase()+"\"}]']").attr('selected', 'selected'); // cambia el valor del select    
+    // // // console.log("#inputGroupSelect03 option[value='[{\"cod_empresa\":"+cod_empresa+",\"servicio\":\""+servicioJSON.toUpperCase()+"\"}]']");    
+  }else if (opcion == 'opcionBtnCausas') { // SE EJECUTA CUANDO SE LLAMA LA FUNCIÓN DESDE EL ICONO DE LA TABLA CAUSAS
     console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL ICONO DE LA TABLA CAUSAS");
-    $.each(JSON.parse(datos), function (i, item) {
-      cod_causa = item.cod_causa;      
+    $.each(JSON.parse(datos), function (i, item) { // SE CAPTURAN LOS NUEVOS VALORES DEL ICONO DE LA TABLA CAUSAS { cod_causa, cod_empresa }
+      cod_causa = item.cod_causa;
       cod_empresa = item.cod_empresa;
     });
   }
@@ -94,6 +100,12 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
   // console.log("NOMBRE EMPRESA SELECCIONADA -> " + empresa);
   // console.log("CAUSA SELECCIONADA -> " + cod_causa);
   // console.log("CODIGO EMPRESA SELECCIONADO -> " + cod_empresa);
+
+  /* URL PARA OBTENER LAS CAUSAS */
+  urlPqrsCausas = "http://localhost:5055/pqr_causas"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
+
+  /* SE EJECUTA LA FUNCIÓN DE LLENADO DE LA TABLA DE CAUSAS */
+  llenarTablaCausas(urlPqrsCausas, cod_empresa);
 
   require(
     [
@@ -114,52 +126,30 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
 
       // console.log("URL PQR's -> " + url);
 
-      urlPqrsCausas = "http://localhost:5055/pqr_causas"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
-
-      // console.log("URL PQR's CAUSAS -> "+urlPqrsCausas);
-
-      $('#table_pqrs_causas tbody').empty();
-      $('#transfer1').css("display", "block");
-      $.ajax({
-        type: "GET",
-        url: urlPqrsCausas,        
-        success: function(data){
-          $('#transfer1').css("display", "none");
-          // console.log("SE GENERA JSON PQR´s CAUSAS");
-          // console.log(data);
-          $.each(data, function(i, item) {
-            $tr = $('<tr>').append(
-              $('<td>').html(item.servicio),
-              $('<td>').text(item.desc_causa),
-              $('<td>').text(item.numero_pqrs),
-              $('<td>').html('<a href="javascript:visualizar(\'opc4\',JSON.stringify([{\'cod_empresa\':'+cod_empresa+',\'cod_causa\':\''+item.cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')    
-            ).appendTo('#table_pqrs_causas tbody');            
-          });
-          $('#table_pqrs_causas').show();
-        }
-      });
-
-      d3.csv(url, function(data){        
-        let servicioEmpresa;
+      d3.csv(url, function(data) { // FUNCIÓN QUE RECIBE EL CSV DE PQRS Y LO CONVIERTE EN JSON
+        // let servicioEmpresa;
         if (data.length > 1) {
           // console.log("SE GENERA JSON PQR´s");
           console.log(data);
-          $('#table_pqrs tbody').empty();
+          $('#table_pqrs tbody').empty(); // SE VACIA LA TABLA DE EMPRESAS CON PQRS
           $.each(JSON.parse(JSON.stringify(data)), function(i, item) {
             if (item.servicio != "") {
-              if ((opcion == "opc1" && servicio == "TODOS") || 
-                  (opcion == "opc2" && servicio == "TODOS") ||
-                  (opcion == "opc2" && empresa == "TODAS") ||
-                  (opcion == "opc4" && servicio == "TODOS") ||
-                  (opcion == "opc4" && empresa == "TODAS")) {
+              if (
+                  ( opcion == "opcionBody"      && servicio == "TODOS" ) || 
+                  ( opcion == "opcionForm"      && servicio == "TODOS" ) ||
+                  ( opcion == "opcionForm"      && empresa  == "TODAS" ) ||
+                  ( opcion == "opcionBtnCausas" && servicio == "TODOS" ) ||
+                  ( opcion == "opcionBtnCausas" && empresa  == "TODAS" )
+                 ) 
+              {
                 $tr = $('<tr>').append(
                   $('<td>').html(item.empresa),
                   $('<td>').text(item.centro_poblado),
                   $('<td>').text(item.numero_pqrs),
-                  $('<td>').html('<a href="javascript:visualizar(\'opc3\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+item.servicio.toLowerCase()+'\',\'cod_causa\':\''+cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
+                  $('<td>').html('<a href="javascript:visualizar(\'opcionBtnEmpresas\',JSON.stringify([{\'cod_empresa\':'+item.cod_empresa+',\'servicio\':\''+item.servicio.toLowerCase()+'\',\'cod_causa\':\''+cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')
                 ).appendTo('#table_pqrs tbody');
-              }else{
-                $tr = $('<tr>').append(                    
+              } else {
+                $tr = $('<tr>').append(
                   $('<td>').html(item.empresa),
                   $('<td>').text(item.centro_poblado),
                   $('<td>').text(item.numero_pqrs)
@@ -186,14 +176,13 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
           // if (servicioSave != null) {
           //   loadEmpresas(servicioSave.toLowerCase(), true);
           // }            
-          if (servicio == "TODOS") {
+          if (servicio != "TODOS") {
             $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's | "+servicio.toUpperCase()).show()
-          }else{
+          } else {
             $('#label_empresa').html("TOP MAYOR NÚMERO DE PQR's")
           }
           $('#table_pqrs').show();
-          // console.log("valor del select servicio -> "+$("#inputGroupSelect02").val());
-        }else{
+        } else {
           console.log("NO SE GENERO JSON DE PQR's");
           $('#table_pqrs tbody').empty();
           Swal.fire({
@@ -290,7 +279,7 @@ function visualizar(opcion, datos) { //toca colocar opciones {opcionbody, opcion
         // ground: "world-elevation"
       });
 
-      if (opcion == 'opc3'){
+      if (opcion == 'opcionBtnEmpresas'){
         lat = localStorage.getItem('latitud');
         long = localStorage.getItem('longitud');
         // coordenadas = [long, lat];

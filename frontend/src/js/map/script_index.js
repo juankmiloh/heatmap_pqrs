@@ -56,16 +56,16 @@ function watchBackdrop(){
 /*FUNCION QUE CARGA LOS ITEMS EN EL SELECT DE EMPRESAS PARTIENDO DE LA OPCION SELECCIONADA EN EL SELECT SERVICIO*/
 function loadEmpresas(select, causas, cod_empresa) {
 	// console.log("CARGAR CAUSAS BOOLEAN  -> " + select);	
-	let servicioAntes = localStorage.getItem('servicioAntes');
+	// let servicioAntes = localStorage.getItem('servicioAntes');
         var servicio = select;
         var url = "http://localhost:5055/empresa/"+servicio;
 
 	// console.log("URL CARGAR EMPRESAS SELECT -> " + url);
 	
-	// $("#inputGroupSelect02 option:selected").removeAttr("selected");
-	$('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
-	localStorage.setItem('servicioAntes', servicio);
-    	$('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected'); // cambia el valor del select
+	// // $("#inputGroupSelect02 option:selected").removeAttr("selected");
+	// $('#inputGroupSelect02 option[value="'+servicioAntes+'"]').removeAttr("selected");
+	// localStorage.setItem('servicioAntes', servicio);
+    	// $('#inputGroupSelect02 option[value="'+servicio+'"]').attr('selected', 'selected'); // cambia el valor del select
         
         $.ajax({
                 type: "GET",
@@ -77,12 +77,11 @@ function loadEmpresas(select, causas, cod_empresa) {
                                 .find('option')
                                 .remove();
 
-			if (cod_empresa == 0) {
+			if (servicio == "TODOS") {
 				$('#inputGroupSelect03').append('<option value=[{"cod_empresa":0,"servicio":"TODOS"}] selected="selected">TODAS</option>');
 			}else{
-				$('#inputGroupSelect03').append('<option value=[{"cod_empresa":0,"servicio":"TODOS"}]>TODAS</option>');
-			}		
-			
+				$('#inputGroupSelect03').append('<option value=[{"cod_empresa":0,"servicio":"'+servicio+'"}] selected="selected">TODAS</option>');
+			}
                         
                         $.each(response, function (i, item) { //CARGA LOS ITEMS EN EL SELECT
                                 var arreglo_empresa = [];
@@ -161,5 +160,29 @@ function loadCausas(select) { // el select recibe un json con el codigo de empre
                         });
                 },
                 error: function(error) { console.log('Failed!' + error); }
+        });
+}
+
+function llenarTablaCausas(urlPqrsCausas, cod_empresa) {
+        // console.log("URL PQR's CAUSAS -> "+urlPqrsCausas);
+        $('#table_pqrs_causas tbody').empty();
+        $('#transfer1').css("display", "block");
+        $.ajax({
+                type: "GET",
+                url: urlPqrsCausas,        
+                success: function(data){
+                        $('#transfer1').css("display", "none");
+                        // console.log("SE GENERA JSON PQR´s CAUSAS");
+                        // console.log(data);
+                        $.each(data, function(i, item) {
+                                $tr = $('<tr>').append(
+                                        $('<td>').html(item.servicio),
+                                        $('<td>').text(item.desc_causa),
+                                        $('<td>').text(item.numero_pqrs),
+                                        $('<td>').html('<a href="javascript:visualizar(\'opcionBtnCausas\',JSON.stringify([{\'cod_empresa\':'+cod_empresa+',\'cod_causa\':\''+item.cod_causa+'\'}]))" style="color: black;"><i class="fa fa-external-link" alt="tooltip"></i></a>')    
+                                ).appendTo('#table_pqrs_causas tbody');
+                        });
+                        $('#table_pqrs_causas').show();
+                }
         });
 }
